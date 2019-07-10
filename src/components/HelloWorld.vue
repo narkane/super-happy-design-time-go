@@ -1,6 +1,6 @@
 <template>
   <div id="data">
-    <v-form ref="form" lazy-validation>
+    <v-form ref="form">
       <v-container fluid>
         <v-layout row>
           <v-flex xs1>
@@ -44,10 +44,10 @@
         </v-layout>
         <v-layout row>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.position.x" label="X" required></v-text-field>
+            <v-text-field v-model="testSprite.x" label="X" required></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.position.y" label="Y" required></v-text-field>
+            <v-text-field v-model="testSprite.y" label="Y" required></v-text-field>
           </v-flex>
           <v-flex xs1>
             <v-text-field v-model="testSprite.width" label="width" required></v-text-field>
@@ -64,7 +64,7 @@
         </v-layout>
         <v-layout row>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.x / ratio" label="X inches" disabled></v-text-field>
+            <v-text-field v-model="inchesxSprite" label="X inches"></v-text-field>
           </v-flex>
           <v-flex xs1>
             <v-text-field v-model="testSprite.y / ratio" label="Y inches" disabled></v-text-field>
@@ -83,6 +83,7 @@
           </v-flex>
         </v-layout>
       </v-container>
+      {{testSprite.x}}
       <v-btn color="green">Save</v-btn>
       <v-btn color="orange">Reset</v-btn>
       <v-btn color="red">Cancel</v-btn>
@@ -129,6 +130,7 @@ export default {
       // set the line style to have a width of 5 and set the color to red
       that.drawArea.lineStyle(2, 0x000000);
 
+      alert("SCREAM!!!");
       // draw a rectangle
       that.drawArea.drawRect(0, 0, 300, 600);
       that.drawArea.x = 300;
@@ -189,14 +191,24 @@ export default {
       function onDragMove() {
         if (this.dragging) {
           var newPosition = this.data.getLocalPosition(this.parent);
-          this.position.x = newPosition.x;
-          this.position.y = newPosition.y;
+          this.x = newPosition.x;
+          this.y = newPosition.y;
         }
       }
     }
   },
-  mounted() {
+  beforeMount() {
     this.init();
+  },
+  computed: {
+    inchesxSprite: {
+      get() {
+        return this.testSprite.x / this.ratio;
+      },
+      set(value) {
+        this.testSprite.x = value * this.ratio;
+      }
+    }
   }
 };
 </script>
