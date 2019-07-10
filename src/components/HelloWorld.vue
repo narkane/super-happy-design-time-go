@@ -56,16 +56,16 @@ import blob from "../assets/blob.png";
 
 export default {
   name: "HelloWorld",
-  data: () => {
+  data() {
     return {
       type: "WebGL",
       app: new PIXI.Application({
-        width: 800,
-        height: 600,
+        width: 600,
+        height: 800,
         backgroundColor: 0x1099bb
       }),
       // testTex: PIXI.utils.TextureCache["../assets/blob.png"],
-      ratio: 15,
+      ratio: 32,
       testSprite: PIXI.Sprite.from(blob),
       height: 0,
       width: 0,
@@ -91,8 +91,8 @@ export default {
       // var texture = PIXI.Texture.fromImage("../assets/blob.png");
       // that.testSprite = PIXI.Sprite.from(blob);
       that.testSprite.anchor.set(0.5);
-      that.testSprite.x = 400;
-      that.testSprite.y = 300;
+      that.testSprite.x = that.app.screen.width / 2;
+      that.testSprite.y = that.app.screen.height / 2;
       // that.testSprite.position.set(
       //   that.app.screen.width / 2,
       //   that.app.screen.height / 2
@@ -100,16 +100,51 @@ export default {
       that.testSprite.interactive = true;
       that.testSprite.buttonMode = true;
 
-      that.testSprite.on("pointerdown", function() {
-        that.testSprite.scale.x *= 1.25;
-        that.testSprite.scale.y *= 1.25;
-      });
+      that.testSprite
+        .on("mousedown", onDragStart)
+        .on("touchstart", onDragStart)
+        // events for drag end
+        .on("mouseup", onDragEnd)
+        .on("mouseupoutside", onDragEnd)
+        .on("touchend", onDragEnd)
+        .on("touchendoutside", onDragEnd)
+        // events for drag move
+        .on("mousemove", onDragMove)
+        .on("touchmove", onDragMove);
+
+      // that.testSprite.scale.y *= 1.25;
 
       that.app.stage.addChild(that.testSprite);
 
       that.app.ticker.add(function(delta) {
         that.testSprite.rotation += 0.1 * delta;
       });
+
+      function onDragStart(event) {
+        // store a reference to the data
+        // the reason for this is because of multitouch
+        // we want to track the movement of this particular touch
+        this.data = event.data;
+        this.alpha = 0.5;
+        this.dragging = true;
+      }
+
+      function onDragEnd() {
+        this.alpha = 1;
+
+        this.dragging = false;
+
+        // set the interaction data to null
+        this.data = null;
+      }
+
+      function onDragMove() {
+        if (this.dragging) {
+          var newPosition = this.data.getLocalPosition(this.parent);
+          this.position.x = newPosition.x;
+          this.position.y = newPosition.y;
+        }
+      }
     }
   },
   mounted() {
