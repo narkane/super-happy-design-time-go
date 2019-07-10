@@ -1,13 +1,53 @@
 <template>
   <div id="data">
-    <v-form ref="form" v-model="valid" lazy-validation>
+    <v-form ref="form" lazy-validation>
       <v-container fluid>
         <v-layout row>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.x" label="X" required></v-text-field>
+            <v-text-field v-model="drawArea.x" label="X" required></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.y" label="Y" required></v-text-field>
+            <v-text-field v-model="drawArea.y" label="Y" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.width" label="width" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.height" label="height" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field disabled />
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="ratio" label="px/inch" required />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.x / ratio" label="X inches" disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.y / ratio" label="Y inches" disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.width / ratio" label="width in." disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.height / ratio" label="height in." disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field disabled />
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field disabled />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex xs1>
+            <v-text-field v-model="testSprite.position.x" label="X" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="testSprite.position.y" label="Y" required></v-text-field>
           </v-flex>
           <v-flex xs1>
             <v-text-field v-model="testSprite.width" label="width" required></v-text-field>
@@ -62,16 +102,13 @@ export default {
       app: new PIXI.Application({
         width: 600,
         height: 800,
-        backgroundColor: 0x1099bb
+        backgroundColor: 0x1099bb,
+        transparent: 1
       }),
       // testTex: PIXI.utils.TextureCache["../assets/blob.png"],
       ratio: 32,
       testSprite: PIXI.Sprite.from(blob),
-      height: 0,
-      width: 0,
-      x: 0,
-      y: 0,
-      valid: null
+      drawArea: new PIXI.Graphics()
     };
   },
   props: {
@@ -86,6 +123,16 @@ export default {
       }
 
       document.body.appendChild(that.app.view);
+
+      // graphics.beginFill(transparent);
+
+      // set the line style to have a width of 5 and set the color to red
+      that.drawArea.lineStyle(2, 0x000000);
+
+      // draw a rectangle
+      that.drawArea.drawRect(0, 0, 300, 600);
+      that.drawArea.x = 300;
+      that.drawArea.y = 150;
 
       // setup sprites
       // var texture = PIXI.Texture.fromImage("../assets/blob.png");
@@ -114,6 +161,7 @@ export default {
 
       // that.testSprite.scale.y *= 1.25;
 
+      that.app.stage.addChild(that.drawArea);
       that.app.stage.addChild(that.testSprite);
 
       that.app.ticker.add(function(delta) {

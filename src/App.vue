@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <img src="./assets/t-shirts-1.jpg" id="shirt" />
     <HelloWorld msg="Welcome to Your Vue.js App" />
   </div>
 </template>
@@ -23,5 +24,12 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+#shirt {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  z-index: -20;
 }
 </style>
