@@ -4,46 +4,6 @@
       <v-container fluid>
         <v-layout row>
           <v-flex xs1>
-            <v-text-field v-model="drawArea.x" label="X" required></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.y" label="Y" required></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.width" label="width" required></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.height" label="height" required></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field disabled />
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="ratio" label="px/inch" required />
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.x / ratio" label="X inches" disabled></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.y / ratio" label="Y inches" disabled></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.width / ratio" label="width in." disabled></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field v-model="drawArea.height / ratio" label="height in." disabled></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field disabled />
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field disabled />
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex xs1>
             <v-text-field v-model="testSprite.x" label="X" required></v-text-field>
           </v-flex>
           <v-flex xs1>
@@ -82,8 +42,47 @@
             <v-text-field disabled />
           </v-flex>
         </v-layout>
+        <v-layout row>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.x" label="X" @change="changeDraw" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.y" label="Y" @change="changeDraw" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.width" label="width" @change="changeDraw" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.height" label="height" @change="changeDraw" required></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field disabled />
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="ratio" label="px/inch" required />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.x / ratio" label="X inches" disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.y / ratio" label="Y inches" disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.width / ratio" label="width in." disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="drawArea.height / ratio" label="height in." disabled></v-text-field>
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field disabled />
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field disabled />
+          </v-flex>
+        </v-layout>
       </v-container>
-      {{testSprite.x}}
       <v-btn color="green">Save</v-btn>
       <v-btn color="orange">Reset</v-btn>
       <v-btn color="red">Cancel</v-btn>
@@ -104,12 +103,12 @@ export default {
         width: 600,
         height: 800,
         backgroundColor: 0x1099bb,
-        transparent: 1
+        transparent: 0
       }),
       // testTex: PIXI.utils.TextureCache["../assets/blob.png"],
       ratio: 32,
       testSprite: PIXI.Sprite.from(blob),
-      drawArea: new PIXI.Graphics()
+      drawArea: new PIXI.Rectangle(300, 150, 400, 700)
     };
   },
   props: {
@@ -122,19 +121,25 @@ export default {
       if (!PIXI.utils.isWebGLSupported()) {
         that.type = "canvas";
       }
-
+      that.app.renderer.view.style.left = that.drawArea.x + "px";
+      that.app.renderer.view.style.top = that.drawArea.y + "px";
+      that.app.renderer.resize(that.drawArea.width, that.drawArea.height);
       document.body.appendChild(that.app.view);
 
       // graphics.beginFill(transparent);
 
       // set the line style to have a width of 5 and set the color to red
-      that.drawArea.lineStyle(2, 0x000000);
+      // that.drawArea.lineStyle(2, 0x000000);
 
       alert("SCREAM!!!");
       // draw a rectangle
-      that.drawArea.drawRect(0, 0, 300, 600);
-      that.drawArea.x = 300;
-      that.drawArea.y = 150;
+      // that.drawArea.width = 300;
+      // that.drawArea.height = 600;
+      // that.drawArea.drawRect(0, 0, that.drawArea.width, that.drawArea.height);
+      // that.drawArea.x = 300;
+      // that.drawArea.y = 150;
+
+      // that.app.stage.width = that.draw
 
       // setup sprites
       // var texture = PIXI.Texture.fromImage("../assets/blob.png");
@@ -163,7 +168,7 @@ export default {
 
       // that.testSprite.scale.y *= 1.25;
 
-      that.app.stage.addChild(that.drawArea);
+      // that.app.stage.addChild(that.drawArea);
       that.app.stage.addChild(that.testSprite);
 
       that.app.ticker.add(function(delta) {
@@ -195,9 +200,17 @@ export default {
           this.y = newPosition.y;
         }
       }
+    },
+    changeDraw: function() {
+      console.log("CHANGE!");
+      // that.app.renderer.screen
+      // this.drawArea.width = value;
+      this.app.renderer.view.style.left = this.drawArea.x + "px";
+      this.app.renderer.view.style.top = this.drawArea.y + "px";
+      this.app.renderer.resize(this.drawArea.width, this.drawArea.height);
     }
   },
-  beforeMount() {
+  created() {
     this.init();
   },
   computed: {

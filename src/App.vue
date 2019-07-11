@@ -29,7 +29,6 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  width: 60%;
   z-index: -20;
 }
 </style>
