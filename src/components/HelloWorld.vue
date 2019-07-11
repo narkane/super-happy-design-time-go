@@ -19,27 +19,27 @@
             <v-text-field disabled />
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="ratio" label="px/inch" required />
+            <v-text-field v-model="ratio" label="ratio" required />
           </v-flex>
         </v-layout>
         <v-layout row>
           <v-flex xs1>
-            <v-text-field v-model="inchesxSprite" label="X inches"></v-text-field>
+            <v-text-field v-model="testSprite.x / ratio" label="X inches" disabled></v-text-field>
           </v-flex>
           <v-flex xs1>
             <v-text-field v-model="testSprite.y / ratio" label="Y inches" disabled></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.width / ratio" label="width in." disabled></v-text-field>
+            <v-text-field v-model="inchesWart" label="width in."></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="testSprite.height / ratio" label="height in." disabled></v-text-field>
-          </v-flex>
-          <v-flex xs1>
-            <v-text-field disabled />
+            <v-text-field v-model="inchesHart" label="height in."></v-text-field>
           </v-flex>
           <v-flex xs1>
             <v-text-field disabled />
+          </v-flex>
+          <v-flex xs1>
+            <v-text-field v-model="artOriginalAspect" label="aspect" disabled></v-text-field>
           </v-flex>
         </v-layout>
         <v-layout row>
@@ -59,21 +59,21 @@
             <v-text-field disabled />
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="ratio" label="px/inch" required />
+            <v-text-field v-model="ratio" label="ratio" required />
           </v-flex>
         </v-layout>
         <v-layout row>
           <v-flex xs1>
-            <v-text-field v-model="drawArea.x / ratio" label="X inches" disabled></v-text-field>
+            <v-text-field v-model="inchesXtemp" label="X inches" disabled></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="drawArea.y / ratio" label="Y inches" disabled></v-text-field>
+            <v-text-field v-model="inchesYtemp" label="Y inches" disabled></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="drawArea.width / ratio" label="width in." disabled></v-text-field>
+            <v-text-field v-model="inchesWtemp" label="width in."></v-text-field>
           </v-flex>
           <v-flex xs1>
-            <v-text-field v-model="drawArea.height / ratio" label="height in." disabled></v-text-field>
+            <v-text-field v-model="inchesHtemp" label="height in."></v-text-field>
           </v-flex>
           <v-flex xs1>
             <v-text-field disabled />
@@ -83,8 +83,8 @@
           </v-flex>
         </v-layout>
       </v-container>
-      <v-btn color="green">Save</v-btn>
-      <v-btn color="orange">Reset</v-btn>
+      <v-btn color="green" @click="savePrint">Save</v-btn>
+      <v-btn color="orange" @click="saveTemplate">Template</v-btn>
       <v-btn color="red">Cancel</v-btn>
     </v-form>
   </div>
@@ -103,16 +103,17 @@ export default {
         width: 600,
         height: 800,
         backgroundColor: 0x1099bb,
-        transparent: 0
+        transparent: 1
       }),
       // testTex: PIXI.utils.TextureCache["../assets/blob.png"],
       ratio: 32,
       testSprite: PIXI.Sprite.from(blob),
-      drawArea: new PIXI.Rectangle(300, 150, 400, 700)
+      artOriginalAspect: "pending",
+      drawArea: new PIXI.Rectangle(300, 150, 400, 600)
     };
   },
   props: {
-    msg: String
+    prodID: String
   },
   methods: {
     init: function() {
@@ -121,29 +122,16 @@ export default {
       if (!PIXI.utils.isWebGLSupported()) {
         that.type = "canvas";
       }
+      //initial changing of drawing area (renderer.view) to rect deminsions
       that.app.renderer.view.style.left = that.drawArea.x + "px";
       that.app.renderer.view.style.top = that.drawArea.y + "px";
       that.app.renderer.resize(that.drawArea.width, that.drawArea.height);
+
       document.body.appendChild(that.app.view);
 
-      // graphics.beginFill(transparent);
-
-      // set the line style to have a width of 5 and set the color to red
-      // that.drawArea.lineStyle(2, 0x000000);
-
-      alert("SCREAM!!!");
-      // draw a rectangle
-      // that.drawArea.width = 300;
-      // that.drawArea.height = 600;
-      // that.drawArea.drawRect(0, 0, that.drawArea.width, that.drawArea.height);
-      // that.drawArea.x = 300;
-      // that.drawArea.y = 150;
-
-      // that.app.stage.width = that.draw
-
       // setup sprites
-      // var texture = PIXI.Texture.fromImage("../assets/blob.png");
-      // that.testSprite = PIXI.Sprite.from(blob);
+      // that.artOriginalAspect = that.testSprite.width / that.testSprite.height;
+      // alert(that.artOriginalAspect);
       that.testSprite.anchor.set(0.5);
       that.testSprite.x = that.app.screen.width / 2;
       that.testSprite.y = that.app.screen.height / 2;
@@ -172,7 +160,7 @@ export default {
       that.app.stage.addChild(that.testSprite);
 
       that.app.ticker.add(function(delta) {
-        that.testSprite.rotation += 0.1 * delta;
+        // that.testSprite.rotation += 0.1 * delta;
       });
 
       function onDragStart(event) {
@@ -203,23 +191,103 @@ export default {
     },
     changeDraw: function() {
       console.log("CHANGE!");
+      this.app.renderer.clear();
       // that.app.renderer.screen
       // this.drawArea.width = value;
       this.app.renderer.view.style.left = this.drawArea.x + "px";
       this.app.renderer.view.style.top = this.drawArea.y + "px";
       this.app.renderer.resize(this.drawArea.width, this.drawArea.height);
+    },
+    saveTemplate: function() {
+      var templateObj = {
+        productID: this.prodID,
+        x: this.drawArea.x,
+        y: this.drawArea.y,
+        w: this.drawArea.width,
+        h: this.drawArea.height
+      };
+      alert(JSON.stringify(templateObj));
+    },
+    savePrint: function() {
+      let that = this;
+
+      //capture entire printable area
+      var graphics = new PIXI.Graphics();
+
+      // graphics.beginFill(0xffff00);
+
+      // set the line style to have a width of 5 and set the color to red
+      graphics.lineStyle(0, 0xff0000);
+
+      // draw a rectangle
+      graphics.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
+
+      this.app.stage.addChild(graphics);
+
+      this.app.renderer.extract.canvas(this.app.stage).toBlob(function(b) {
+        var a = document.createElement("a");
+        document.body.append(a);
+        a.download = "print-file-prod" + that.prodID + ".png";
+        a.href = URL.createObjectURL(b);
+        a.click();
+        a.remove();
+      }, "image/png");
     }
   },
   created() {
     this.init();
   },
   computed: {
-    inchesxSprite: {
+    inchesXtemp: {
       get() {
-        return this.testSprite.x / this.ratio;
+        return this.drawArea.x / this.ratio;
       },
       set(value) {
-        this.testSprite.x = value * this.ratio;
+        this.drawArea.x = value * this.ratio;
+      }
+    },
+    inchesYtemp: {
+      get() {
+        return this.drawArea.y / this.ratio;
+      },
+      set(value) {
+        this.drawArea.y = value * this.ratio;
+      }
+    },
+    inchesWtemp: {
+      get() {
+        return this.drawArea.width / this.ratio;
+      },
+      set(value) {
+        this.ratio = this.drawArea.width / value;
+        // this.drawArea.width = value * this.ratio;
+      }
+    },
+    inchesHtemp: {
+      get() {
+        return this.drawArea.height / this.ratio;
+      },
+      set(value) {
+        this.ratio = this.drawArea.height / value;
+        // this.drawArea.height = value * this.ratio;
+      }
+    },
+    inchesWart: {
+      get() {
+        return this.testSprite.width / this.ratio;
+      },
+      set(value) {
+        // this.ratio = this.testSprite.width / value;
+        this.testSprite.width = value * this.ratio;
+      }
+    },
+    inchesHart: {
+      get() {
+        return this.testSprite.height / this.ratio;
+      },
+      set(value) {
+        // this.ratio = this.testSprite.height / value;
+        this.testSprite.height = value * this.ratio;
       }
     }
   }
@@ -236,6 +304,8 @@ export default {
   height: 200px;
 }
 canvas {
+  border: 2px dashed lightblue;
+  background-color: rgba(0, 0, 255, 0.1);
   position: absolute;
   top: 0px;
   left: 0px;
